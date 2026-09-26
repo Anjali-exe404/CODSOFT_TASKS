@@ -1,86 +1,72 @@
-# CODSOFT Task 2 - Smart Calculator
+import tkinter as tk
 
-history = []
+def click(value):
+    if entry.get() == "Error":
+        entry.delete(0, tk.END)
+    entry.insert(tk.END, value)
 
+def clear():
+    entry.delete(0, tk.END)
 
-def calculator():
-    while True:
-        print("\n" + "=" * 50)
-        print("              🧮 SMART CALCULATOR")
-        print("=" * 50)
+def calculate():
+    try:
+        result = eval(entry.get())
+        entry.delete(0, tk.END)
+        entry.insert(0, result)
+    except:
+        entry.delete(0, tk.END)
+        entry.insert(0, "Error")
 
-        print("1. ➕ Addition")
-        print("2. ➖ Subtraction")
-        print("3. ✖️ Multiplication")
-        print("4. ➗ Division")
-        print("5. 🔢 Power")
-        print("6. 📊 Percentage")
-        print("7. 📜 View History")
-        print("8. 🚪 Exit")
+window = tk.Tk()
+window.title("Calculator")
+window.geometry("360x500")
+window.resizable(True, True)
 
-        print("=" * 50)
+entry = tk.Entry(
+    window,
+    font=("Arial", 24),
+    justify="right"
+)
+entry.pack(fill="x", padx=10, pady=15, ipady=10)
 
-        choice = input("Enter your choice: ").strip()
+frame = tk.Frame(window)
+frame.pack(expand=True, fill="both", padx=10)
 
-        if choice == "8":
-            print("\n👋 Thank you for using Smart Calculator!")
-            break
+buttons = [
+    ("7", 0, 0), ("8", 0, 1), ("9", 0, 2), ("/", 0, 3),
+    ("4", 1, 0), ("5", 1, 1), ("6", 1, 2), ("*", 1, 3),
+    ("1", 2, 0), ("2", 2, 1), ("3", 2, 2), ("-", 2, 3),
+    ("0", 3, 0), (".", 3, 1), ("+", 3, 2), ("=", 3, 3)
+]
 
-        if choice == "7":
-            if not history:
-                print("\n📭 No calculation history yet.")
-            else:
-                print("\n📜 CALCULATION HISTORY")
-                print("-" * 50)
+for text, row, col in buttons:
+    if text == "=":
+        command = calculate
+    else:
+        command = lambda x=text: click(x)
 
-                for item in history:
-                    print(item)
+    tk.Button(
+        frame,
+        text=text,
+        font=("Arial", 18),
+        command=command
+    ).grid(
+        row=row,
+        column=col,
+        sticky="nsew",
+        padx=3,
+        pady=3
+    )
 
-            continue
+for i in range(4):
+    frame.columnconfigure(i, weight=1)
+    frame.rowconfigure(i, weight=1)
 
-        if choice not in ["1", "2", "3", "4", "5", "6"]:
-            print("\n❌ Invalid choice. Please select 1-8.")
-            continue
+tk.Button(
+    window,
+    text="CLEAR",
+    font=("Arial", 16),
+    command=clear
+).pack(fill="x", padx=13, pady=10)
 
-        try:
-            num1 = float(input("\nEnter first number: "))
-
-            num2 = float(input("Enter second number: "))
-
-            if choice == "1":
-                result = num1 + num2
-                operation = f"{num1} + {num2} = {result}"
-
-            elif choice == "2":
-                result = num1 - num2
-                operation = f"{num1} - {num2} = {result}"
-
-            elif choice == "3":
-                result = num1 * num2
-                operation = f"{num1} × {num2} = {result}"
-
-            elif choice == "4":
-                if num2 == 0:
-                    print("\n❌ Cannot divide by zero.")
-                    continue
-
-                result = num1 / num2
-                operation = f"{num1} ÷ {num2} = {result}"
-
-            elif choice == "5":
-                result = num1 ** num2
-                operation = f"{num1} ^ {num2} = {result}"
-
-            elif choice == "6":
-                result = (num1 / 100) * num2
-                operation = f"{num1}% of {num2} = {result}"
-
-            history.append(operation)
-
-            print("\n✅ Result:", result)
-
-        except ValueError:
-            print("\n❌ Please enter valid numbers.")
-
-
-calculator()
+window.mainloop()
