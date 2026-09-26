@@ -2,7 +2,7 @@
 
 Welcome to my repository for the **CODSOFT Python Programming Internship**.
 
-This repository contains three Python projects developed to improve my programming, problem-solving, and Python skills.
+This repository contains three Python projects developed to improve my programming, problem-solving, and application development skills.
 
 ---
 
@@ -10,16 +10,18 @@ This repository contains three Python projects developed to improve my programmi
 
 ### 📝 Task 1 — Smart To-Do Manager
 
-A command-line task management application for organizing and tracking tasks.
+A Python-based To-Do List application with a user-friendly graphical interface built using Tkinter.
 
 **Features:**
-- Add, view, update, and delete tasks
+
+- Add tasks
+- View tasks
+- Delete tasks
 - Mark tasks as completed
 - Task categories
 - Priority levels
 - Due dates
-- Search functionality
-- Progress tracking
+- Task progress tracking
 - JSON data storage
 
 **File:** `Task1_ToDo_List/todo_list.py`
@@ -28,9 +30,10 @@ A command-line task management application for organizing and tracking tasks.
 
 ### 🧮 Task 2 — Smart Calculator
 
-A Python calculator that performs different mathematical operations.
+A Python-based calculator with a graphical user interface developed using Tkinter.
 
 **Features:**
+
 - Addition
 - Subtraction
 - Multiplication
@@ -39,7 +42,7 @@ A Python calculator that performs different mathematical operations.
 - Percentage calculation
 - Calculation history
 - Input validation
-- Division-by-zero handling
+- Error handling
 
 **File:** `Task2_Calculator/calculator.py`
 
@@ -47,16 +50,17 @@ A Python calculator that performs different mathematical operations.
 
 ### 🔐 Task 3 — Smart Password Generator
 
-A Python application that generates random passwords.
+A Python-based password generator with customizable password options and a user-friendly interface.
 
 **Features:**
+
 - Random password generation
 - Custom password length
 - Uppercase letters
 - Lowercase letters
 - Numbers
 - Special characters
-- Password strength indicator
+- Password strength selection
 - Input validation
 
 **File:** `Task3_Password_Generator/password_generator.py`
@@ -66,6 +70,7 @@ A Python application that generates random passwords.
 ## 🛠️ Technologies Used
 
 - Python 3
+- Tkinter
 - JSON
 - Random
 - String
@@ -90,3 +95,26 @@ CODSOFT_TASKS/
 │
 ├── README.md
 └── .gitignore
+## 🎯 Internship Objective
+
+The projects were developed as part of the CODSOFT Python Programming Internship to gain practical experience in:
+
+- Python programming
+- GUI application development
+- Problem solving
+- File handling
+- Data storage
+- Input validation
+- Application design
+
+---
+
+## 👩‍💻 Author
+
+**Anjali**
+
+GitHub: [Anjali-exe404](https://github.com/Anjali-exe404)
+
+---
+
+⭐ Thank you for visiting my repository!
