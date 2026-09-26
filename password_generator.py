@@ -1,80 +1,119 @@
+import tkinter as tk
 import random
 import string
 
+def generate():
+    try:
+        n = int(length.get())
+        if n < 4:
+            raise ValueError
+    except:
+        result.delete(0, tk.END)
+        result.insert(0, "Length must be 4+")
+        return
 
-def generate_password(length):
-    characters = string.ascii_letters + string.digits + string.punctuation
-    password = ''.join(random.choice(characters) for _ in range(length))
-    return password
+    chars = ""
 
+    if upper.get():
+        chars += string.ascii_uppercase
+    if lower.get():
+        chars += string.ascii_lowercase
+    if numbers.get():
+        chars += string.digits
+    if symbols.get():
+        chars += string.punctuation
 
-def check_strength(password):
-    score = 0
+    if not chars:
+        result.delete(0, tk.END)
+        result.insert(0, "Select character type")
+        return
 
-    if len(password) >= 8:
-        score += 1
+    p = ''.join(random.choice(chars) for _ in range(n))
+    result.delete(0, tk.END)
+    result.insert(0, p)
 
-    if any(char.isupper() for char in password):
-        score += 1
+    score = sum([upper.get(), lower.get(), numbers.get(), symbols.get()])
 
-    if any(char.islower() for char in password):
-        score += 1
-
-    if any(char.isdigit() for char in password):
-        score += 1
-
-    if any(char in string.punctuation for char in password):
-        score += 1
-
-    if score <= 2:
-        return "⚠️ Weak"
-
-    elif score <= 4:
-        return "🟡 Medium"
-
+    if score == 1:
+        status.config(text="Strength: Weak")
+    elif score == 2:
+        status.config(text="Strength: Medium")
     else:
-        return "🟢 Strong"
+        status.config(text="Strength: Strong")
 
+def copy():
+    window.clipboard_clear()
+    window.clipboard_append(result.get())
+    status.config(text="Password Copied!")
 
-def password_generator():
-    while True:
-        print("\n" + "=" * 55)
-        print("             🔐 SMART PASSWORD GENERATOR")
-        print("=" * 55)
+def clear():
+    result.delete(0, tk.END)
+    status.config(text="Strength: ---")
 
-        print("1. 🔑 Generate Password")
-        print("2. 🚪 Exit")
+window = tk.Tk()
+window.title("Password Generator")
+window.geometry("520x500")
+window.minsize(450, 450)
 
-        print("=" * 55)
+tk.Label(
+    window,
+    text="🔐 PASSWORD GENERATOR",
+    font=("Arial", 22, "bold")
+).pack(pady=20)
 
-        choice = input("Enter your choice: ").strip()
+tk.Label(window, text="Password Length",
+         font=("Arial", 12, "bold")).pack()
 
-        if choice == "2":
-            print("\n👋 Thank you for using Password Generator!")
-            break
+length = tk.Entry(window, width=15,
+                  font=("Arial", 13), justify="center")
+length.insert(0, "12")
+length.pack(pady=5)
 
-        if choice != "1":
-            print("\n❌ Invalid choice. Please select 1 or 2.")
-            continue
+tk.Label(window, text="Select Characters",
+         font=("Arial", 12, "bold")).pack(pady=12)
 
-        try:
-            length = int(input("\nEnter password length: "))
+upper = tk.BooleanVar(value=True)
+lower = tk.BooleanVar(value=True)
+numbers = tk.BooleanVar(value=True)
+symbols = tk.BooleanVar(value=True)
 
-            if length < 4:
-                print("❌ Password length should be at least 4.")
-                continue
+f = tk.Frame(window)
+f.pack()
 
-            password = generate_password(length)
-            strength = check_strength(password)
+tk.Checkbutton(f, text="A-Z", variable=upper).grid(row=0, column=0, padx=8)
+tk.Checkbutton(f, text="a-z", variable=lower).grid(row=0, column=1, padx=8)
+tk.Checkbutton(f, text="0-9", variable=numbers).grid(row=0, column=2, padx=8)
+tk.Checkbutton(f, text="Symbols", variable=symbols).grid(row=0, column=3, padx=8)
 
-            print("\n" + "-" * 55)
-            print("🔐 Generated Password:")
-            print(password)
-            print(f"\n🛡️ Strength: {strength}")
-            print("-" * 55)
+tk.Button(
+    window,
+    text="GENERATE PASSWORD",
+    font=("Arial", 12, "bold"),
+    command=generate
+).pack(pady=18)
 
-        except ValueError:
-            print("\n❌ Please enter a valid number.")
+result = tk.Entry(
+    window,
+    width=40,
+    font=("Arial", 14),
+    justify="center"
+)
+result.pack(ipady=8)
 
+status = tk.Label(
+    window,
+    text="Strength: ---",
+    font=("Arial", 11, "bold")
+)
+status.pack(pady=10)
 
-password_generator()
+buttons = tk.Frame(window)
+buttons.pack(pady=10)
+
+tk.Button(buttons, text="📋 Copy",
+          width=12, command=copy).grid(row=0, column=0, padx=5)
+
+tk.Button(buttons, text="🗑 Clear",
+          width=12, command=clear).grid(row=0, column=1, padx=5)
+
+window.mainloop()
