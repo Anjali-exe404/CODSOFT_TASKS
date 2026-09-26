@@ -1,307 +1,95 @@
+import tkinter as tk
+from tkinter import messagebox
 import json
-from datetime import datetime
 
-FILE_NAME = "tasks.json"
+FILE="tasks.json"
 
+try:
+    tasks=json.load(open(FILE))
+except:
+    tasks=[]
 
-# ---------------- LOAD & SAVE TASKS ----------------
+def save():
+    json.dump(tasks,open(FILE,"w"),indent=4)
 
-def load_tasks():
+def show(data=None):
+    box.delete(0,tk.END)
+    for i,t in enumerate(data if data is not None else tasks):
+        s="✓" if t.get("completed",False) else "○"
+        box.insert(tk.END,f"{i+1}. {s} {t['title']} | {t['category']} | {t['priority']} | {t['due_date']}")
+
+def add():
+    if not entry.get().strip():
+        messagebox.showwarning("Warning","Enter a task!")
+        return
+    tasks.append({"title":entry.get(),"category":cat.get(),"priority":pri.get(),
+                  "due_date":date.get(),"completed":False})
+    save(); show(); entry.delete(0,tk.END); date.delete(0,tk.END)
+
+def complete():
     try:
-        with open(FILE_NAME, "r") as file:
-            return json.load(file)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return []
+        tasks[box.curselection()[0]]["completed"]=True
+        save(); show()
+    except:
+        messagebox.showwarning("Warning","Select a task!")
 
-
-def save_tasks():
-    with open(FILE_NAME, "w") as file:
-        json.dump(tasks, file, indent=4)
-
-
-tasks = load_tasks()
-
-
-# ---------------- DISPLAY TASKS ----------------
-
-def show_tasks(task_list=None):
-    if task_list is None:
-        task_list = tasks
-
-    if not task_list:
-        print("\n📭 No tasks found.")
-        return
-
-    print("\n" + "=" * 75)
-    print("                         📋 YOUR TASKS")
-    print("=" * 75)
-
-    for index, task in enumerate(task_list, start=1):
-        status = "✅ Done" if task["completed"] else "⏳ Pending"
-
-        print(f"""
-{index}. {task["title"]}
-   📌 Category : {task["category"]}
-   🔥 Priority : {task["priority"]}
-   📅 Due Date : {task["due_date"]}
-   📊 Status   : {status}
-""")
-
-
-# ---------------- ADD TASK ----------------
-
-def add_task():
-    print("\n➕ ADD NEW TASK")
-
-    title = input("Enter task: ").strip()
-
-    if not title:
-        print("❌ Task cannot be empty.")
-        return
-
-    print("\nCategories:")
-    print("1. 📚 Study")
-    print("2. 💼 Work")
-    print("3. 🏠 Personal")
-    print("4. 🌟 Other")
-
-    category_choice = input("Choose category: ")
-
-    categories = {
-        "1": "Study",
-        "2": "Work",
-        "3": "Personal",
-        "4": "Other"
-    }
-
-    category = categories.get(category_choice, "Other")
-
-    print("\nPriority:")
-    print("1. 🔴 High")
-    print("2. 🟡 Medium")
-    print("3. 🟢 Low")
-
-    priority_choice = input("Choose priority: ")
-
-    priorities = {
-        "1": "High",
-        "2": "Medium",
-        "3": "Low"
-    }
-
-    priority = priorities.get(priority_choice, "Medium")
-
-    due_date = input("\nEnter due date (DD-MM-YYYY): ").strip()
-
-    # Validate date
+def delete():
     try:
-        datetime.strptime(due_date, "%d-%m-%Y")
-    except ValueError:
-        print("❌ Invalid date. Task was not added.")
-        return
+        tasks.pop(box.curselection()[0])
+        save(); show()
+    except:
+        messagebox.showwarning("Warning","Select a task!")
 
-    new_task = {
-        "title": title,
-        "category": category,
-        "priority": priority,
-        "due_date": due_date,
-        "completed": False
-    }
-
-    tasks.append(new_task)
-    save_tasks()
-
-    print("\n🎉 Task added successfully!")
-
-
-# ---------------- COMPLETE TASK ----------------
-
-def complete_task():
-    show_tasks()
-
-    if not tasks:
-        return
-
+def update():
     try:
-        number = int(input("\nEnter task number to complete: "))
+        t=tasks[box.curselection()[0]]
+        t.update(title=entry.get() or t["title"],category=cat.get(),
+                 priority=pri.get(),due_date=date.get() or t["due_date"])
+        save(); show()
+    except:
+        messagebox.showwarning("Warning","Select a task!")
 
-        if 1 <= number <= len(tasks):
+def search():
+    x=entry.get().lower()
+    show([t for t in tasks if x in t["title"].lower() or
+          x in t["category"].lower() or x in t["priority"].lower()])
 
-            if tasks[number - 1]["completed"]:
-                print("ℹ️ Task is already completed.")
-            else:
-                tasks[number - 1]["completed"] = True
-                save_tasks()
-                print("🎉 Task completed!")
+def progress():
+    total=len(tasks)
+    done=sum(t.get("completed",False) for t in tasks)
+    messagebox.showinfo("Progress",f"Total: {total}\nCompleted: {done}\n"
+                         f"Pending: {total-done}\nProgress: {done*100//total if total else 0}%")
 
-        else:
-            print("❌ Invalid task number.")
+# WINDOW
+win=tk.Tk()
+win.title("Smart To-Do Manager")
+win.geometry("650x550")
+win.minsize(550,450)
 
-    except ValueError:
-        print("❌ Please enter a valid number.")
+tk.Label(win,text="SMART TO-DO MANAGER",font=("Arial",20,"bold")).pack(pady=10)
 
+entry=tk.Entry(win,width=40)
+entry.pack(pady=5)
 
-# ---------------- DELETE TASK ----------------
+cat=tk.StringVar(value="Study")
+tk.OptionMenu(win,cat,"Study","Work","Personal","Other").pack()
 
-def delete_task():
-    show_tasks()
+pri=tk.StringVar(value="Medium")
+tk.OptionMenu(win,pri,"High","Medium","Low").pack()
 
-    if not tasks:
-        return
+date=tk.Entry(win,width=40)
+date.pack(pady=5)
 
-    try:
-        number = int(input("\nEnter task number to delete: "))
+f=tk.Frame(win)
+f.pack(pady=8)
 
-        if 1 <= number <= len(tasks):
-            deleted = tasks.pop(number - 1)
-            save_tasks()
+for i,(name,cmd) in enumerate([
+    ("Add",add),("Update",update),("Complete",complete),("Delete",delete),
+    ("Search",search),("Show All",show),("Progress",progress)]):
+    tk.Button(f,text=name,width=10,command=cmd).grid(row=i//4,column=i%4,padx=3,pady=3)
 
-            print(f"🗑️ '{deleted['title']}' deleted successfully!")
+box=tk.Listbox(win,width=90,height=15)
+box.pack(padx=10,pady=10,fill="both",expand=True)
 
-        else:
-            print("❌ Invalid task number.")
-
-    except ValueError:
-        print("❌ Please enter a valid number.")
-
-
-# ---------------- UPDATE TASK ----------------
-
-def update_task():
-    show_tasks()
-
-    if not tasks:
-        return
-
-    try:
-        number = int(input("\nEnter task number to update: "))
-
-        if not (1 <= number <= len(tasks)):
-            print("❌ Invalid task number.")
-            return
-
-        task = tasks[number - 1]
-
-        print("\nLeave blank if you don't want to change something.")
-
-        new_title = input(f"New title [{task['title']}]: ").strip()
-
-        if new_title:
-            task["title"] = new_title
-
-        new_date = input(f"New due date [{task['due_date']}]: ").strip()
-
-        if new_date:
-            try:
-                datetime.strptime(new_date, "%d-%m-%Y")
-                task["due_date"] = new_date
-            except ValueError:
-                print("❌ Invalid date. Old date kept.")
-
-        save_tasks()
-
-        print("✅ Task updated successfully!")
-
-    except ValueError:
-        print("❌ Please enter a valid number.")
-
-
-# ---------------- SEARCH TASK ----------------
-
-def search_task():
-    keyword = input("\n🔍 Enter keyword to search: ").lower().strip()
-
-    results = [
-        task for task in tasks
-        if keyword in task["title"].lower()
-        or keyword in task["category"].lower()
-        or keyword in task["priority"].lower()
-    ]
-
-    if results:
-        print(f"\n🔎 Found {len(results)} task(s):")
-        show_tasks(results)
-    else:
-        print("❌ No matching tasks found.")
-
-
-# ---------------- PROGRESS ----------------
-
-def show_progress():
-    total = len(tasks)
-
-    if total == 0:
-        print("\n📊 No tasks available.")
-        return
-
-    completed = sum(task["completed"] for task in tasks)
-    pending = total - completed
-
-    percentage = int((completed / total) * 100)
-
-    bars = int(percentage / 10)
-    progress_bar = "█" * bars + "░" * (10 - bars)
-
-    print("\n" + "=" * 50)
-    print("                 📊 PROGRESS")
-    print("=" * 50)
-
-    print(f"Total Tasks     : {total}")
-    print(f"Completed       : {completed}")
-    print(f"Pending         : {pending}")
-    print(f"Progress        : {percentage}%")
-    print(f"[{progress_bar}]")
-
-    print("=" * 50)
-
-
-# ---------------- MAIN MENU ----------------
-
-while True:
-
-    print("\n")
-    print("=" * 55)
-    print("              ✨ SMART TO-DO MANAGER ✨")
-    print("=" * 55)
-
-    print("1. ➕ Add Task")
-    print("2. 📋 View Tasks")
-    print("3. ✏️ Update Task")
-    print("4. ✅ Complete Task")
-    print("5. 🗑️ Delete Task")
-    print("6. 🔍 Search Task")
-    print("7. 📊 View Progress")
-    print("8. 🚪 Exit")
-
-    print("=" * 55)
-
-    choice = input("Enter your choice: ").strip()
-
-    if choice == "1":
-        add_task()
-
-    elif choice == "2":
-        show_tasks()
-
-    elif choice == "3":
-        update_task()
-
-    elif choice == "4":
-        complete_task()
-
-    elif choice == "5":
-        delete_task()
-
-    elif choice == "6":
-        search_task()
-
-    elif choice == "7":
-        show_progress()
-
-    elif choice == "8":
-        print("\n👋 Thank you for using Smart To-Do Manager!")
-        print("✨ Stay productive!")
-        break
-
-    else:
-        print("\n❌ Invalid choice. Please select 1-8.")
+show()
+win.mainloop()
